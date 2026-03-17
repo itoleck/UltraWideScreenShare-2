@@ -197,7 +197,7 @@ namespace UltraWideScreenShare.WinForms
             MinimumSize = new Size(928, 427);
             Name = "MainWindow";
             Padding = new Padding(8);
-            Text = "Ultra Wide Screen Share 2.0";
+            Text = "Ultra Wide Screen Share 2.0 (60 fps)";
             TopMost = true;
             TransparencyKey = Color.Magenta;
             Load += MainWindow_Load;

@@ -13,6 +13,7 @@ namespace UltraWideScreenShare.WinForms
         {
             if (Environment.OSVersion.Version.Major >= 6)
                 SetProcessDPIAware();
+            Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(true);
             Application.Run(new MainWindow());

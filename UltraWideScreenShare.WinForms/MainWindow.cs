@@ -1,19 +1,33 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Forms;
-using Timer = System.Windows.Forms.Timer;
+using Timer = System.Timers.Timer;
 
 namespace UltraWideScreenShare.WinForms
 {
     public partial class MainWindow : Form
     {
-        private readonly Timer _dispatcherTimer = new Timer() { Interval = 2 }; //30fps
+        private readonly Timer _dispatcherTimer = new Timer(1000.0 / 60.0); // 60fps
         private Point _tittleBarLocation = new Point();
         private Magnifier _magnifier;
         private bool _isTransparent = false;
         private Color _frameColor = Color.FromArgb(255, 53, 89, 224); //#3559E0
         const int _borderWidth = 6;
         private bool _showMagnifierScheduled = true;
+        private Stopwatch _fpsStopwatch = Stopwatch.StartNew();
+        private int _frameCount = 0;
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public string TitleText
+        {
+            get => titleButton.Text;
+            set
+            {
+                titleButton.Text = value;
+                this.Text = value;
+            }
+        }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -45,9 +59,18 @@ namespace UltraWideScreenShare.WinForms
         private void MainWindow_Load(object sender, EventArgs e)
         {
             _magnifier = new Magnifier(magnifierPanel.Handle);
+            _dispatcherTimer.SynchronizingObject = this;
             _dispatcherTimer.Start();
-            _dispatcherTimer.Tick += (s, a) =>
+            _dispatcherTimer.Elapsed += (s, a) =>
             {
+                _frameCount++;
+                double elapsedSeconds = _fpsStopwatch.Elapsed.TotalSeconds;
+                if (elapsedSeconds >= 5.0)
+                {
+                    TitleText = $"Ultra Wide Screen Share 2.0 ({(int)Math.Round(_frameCount / elapsedSeconds)} fps)";
+                    _frameCount = 0;
+                    _fpsStopwatch.Restart();
+                }
                 _magnifier.UpdateMagnifierWindow();
                 if (magnifierPanel.Bounds.Contains(PointToClient(Cursor.Position)) && !TitleBar.Bounds.Contains(PointToClient(Cursor.Position)))
                 {
