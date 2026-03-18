@@ -7,7 +7,9 @@ namespace UltraWideScreenShare.WinForms
 {
     public partial class MainWindow : Form
     {
-        private readonly Timer _dispatcherTimer = new Timer(1000.0 / 60.0); // 60fps
+        
+        private double _fpsrate = 30.0;
+        private Timer _dispatcherTimer = new Timer(1000.0 / 30.0); // 30fps
         private Point _tittleBarLocation = new Point();
         private Magnifier _magnifier;
         private bool _isTransparent = false;
@@ -65,7 +67,7 @@ namespace UltraWideScreenShare.WinForms
             {
                 _frameCount++;
                 double elapsedSeconds = _fpsStopwatch.Elapsed.TotalSeconds;
-                if (elapsedSeconds >= 5.0)
+                if (elapsedSeconds >= 3.0)
                 {
                     TitleText = $"Ultra Wide Screen Share 2.0 ({(int)Math.Round(_frameCount / elapsedSeconds)} fps)";
                     _frameCount = 0;
@@ -131,7 +133,7 @@ namespace UltraWideScreenShare.WinForms
         }
 
         private void MainWindow_Paint(object sender, PaintEventArgs e)
-        { 
+        {
             ControlPaint.DrawBorder(e.Graphics, ClientRectangle,
                 _frameColor, _borderWidth, ButtonBorderStyle.Solid,
                 _frameColor, _borderWidth, ButtonBorderStyle.Solid,
@@ -192,6 +194,19 @@ namespace UltraWideScreenShare.WinForms
                 TitleBar.Left = Math.Clamp(value: e.X + TitleBar.Left - _tittleBarLocation.X,
                     min: 0, max: Width - TitleBar.Width);
 
+            }
+        }
+
+        private void LBFrameRate_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (LBFrameRate.SelectedItem != null)
+            {
+                string selectedText = LBFrameRate.SelectedItem.ToString().ToLower().Replace(" fps", "").Replace("fps", "").Trim();
+                if (double.TryParse(selectedText, out double newFps) && newFps > 0)
+                {
+                    _fpsrate = newFps;
+                    _dispatcherTimer.Interval = 1000.0 / _fpsrate;
+                }
             }
         }
     }
